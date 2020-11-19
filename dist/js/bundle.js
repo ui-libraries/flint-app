@@ -460,6 +460,18 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n
 
 /***/ }),
 
+/***/ "./src/flint-ids-test.js":
+/*!*******************************!*\
+  !*** ./src/flint-ids-test.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nvar flintIds = exports.flintIds = [{ \"id\": \"deq14_b1000_3221_3222_1\" }, { \"id\": \"deq14_b1000_3221_3222_2\" }, { \"id\": \"deq14_b1003_3224_3224_1\" }, { \"id\": \"deq14_b1004_3225_3225_1\" }, { \"id\": \"deq14_b1005_3226_3226_1\" }, { \"id\": \"deq14_b1006_3227_3228_1\" }, { \"id\": \"deq14_b1006_3227_3228_2\" }, { \"id\": \"deq14_b1007_3229_3229_1\" }, { \"id\": \"deq14_b1008_3230_3230_1\" }, { \"id\": \"deq14_b1009_3231_3233_1\" }];\n\n//# sourceURL=webpack:///./src/flint-ids-test.js?");
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -468,7 +480,7 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\n
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar _database = __webpack_require__(/*! ./database */ \"./src/database.js\");\n\n//# sourceURL=webpack:///./src/index.js?");
+eval("\n\nvar _database = __webpack_require__(/*! ./database */ \"./src/database.js\");\n\nvar _flintIdsTest = __webpack_require__(/*! ./flint-ids-test */ \"./src/flint-ids-test.js\");\n\nvar text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/';\nvar pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/';\nvar document = 'deq14_b1006_3227_3228_1';\n\n$('#textarea').load(text_cloudfront + document + \".txt\", function (data) {\n  var el = window.document.getElementById('textarea');\n  el.addEventListener('mouseup', function () {\n    if (typeof window.getSelection != 'undefined') {\n      var sel = window.getSelection();\n      var range = sel.getRangeAt(0);\n\n      var startOffset = range.startOffset;\n      var endOffset = startOffset + range.toString().length;\n\n      var modal = $('#selectionModal');\n      modal.find('#modalTitle').text(sel);\n      modal.find('.modal-body').html('<p>Selection start: ' + startOffset + '</p><p>Selection end: ' + endOffset + '</p>');\n      $('#selectionModal').modal();\n    }\n  }, false);\n});\n\n/*\nflintIds.forEach(id => {\n  const res = db.collection('pages').add({\n    id: id['id']\n  })\n})\n*/\n\n//# sourceURL=webpack:///./src/index.js?");
 
 /***/ })
 
