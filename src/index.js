@@ -9,8 +9,9 @@ import {
 
 const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
 const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
-$('#docname-input').val('deq14_b1005_3226_3226_1')
-getDocument('deq14_b1005_3226_3226_1')
+
+$('#docname-input').val(getUrlDoc())
+getDocument(getUrlDoc())
 let startOffset, endOffset, selectionText, currentId
 
 $('#doc-submit').click(e => {
@@ -29,9 +30,6 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
-              //let text = $('#textarea').html()
-              //$('#textarea').html($.trim(text))
-
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
                     if (window.getSelection) {
@@ -40,7 +38,7 @@ function getDocument(document) {
                         let range = sel.getRangeAt(0)
                         startOffset = range.startOffset
                         endOffset = startOffset + range.toString().length
-                        highlightSelection()
+                        
                         let modal = $('#selectionModal')
                         modal.find('#modalTitle').text(selectionText)
                         modal.find('.modal-body').html(`<p>Selection start: ${startOffset}</p><p>Selection end: ${endOffset}</p><label for="note">Add note:</label><input type="text" id="note" name="note">`)
@@ -53,20 +51,6 @@ function getDocument(document) {
 
         })
     })
-}
-
-function highlightSelection() {
-  var userSelection = window.getSelection().getRangeAt(0)
-  highlightRange(userSelection)
-}
-
-function highlightRange(range) {
-  let newNode = document.createElement("div")
-  newNode.setAttribute(
-     "style",
-     "background-color: yellow; display: inline;"
-  )
-  range.surroundContents(newNode)
 }
 
 $('#save-changes').click(e => {
@@ -106,6 +90,18 @@ function cleanId(document) {
     doc = doc.slice(0, -4)
   }
   return doc
+}
+
+function getUrlDoc() {
+  let page = location.href.split('/').slice(-1)[0]
+  page = page.split('?d=')
+  let file = page[1]
+
+  if (file) {
+    return file
+  } else {
+    return 'deq14_b1005_3226_3226_1'
+  }
 }
 
 /*
