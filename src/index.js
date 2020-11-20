@@ -29,6 +29,9 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
+              //let text = $('#textarea').html()
+              //$('#textarea').html($.trim(text))
+
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
                     if (window.getSelection) {
@@ -37,6 +40,7 @@ function getDocument(document) {
                         let range = sel.getRangeAt(0)
                         startOffset = range.startOffset
                         endOffset = startOffset + range.toString().length
+                        highlightSelection()
                         let modal = $('#selectionModal')
                         modal.find('#modalTitle').text(selectionText)
                         modal.find('.modal-body').html(`<p>Selection start: ${startOffset}</p><p>Selection end: ${endOffset}</p><label for="note">Add note:</label><input type="text" id="note" name="note">`)
@@ -51,9 +55,22 @@ function getDocument(document) {
     })
 }
 
+function highlightSelection() {
+  var userSelection = window.getSelection().getRangeAt(0)
+  highlightRange(userSelection)
+}
+
+function highlightRange(range) {
+  let newNode = document.createElement("div")
+  newNode.setAttribute(
+     "style",
+     "background-color: yellow; display: inline;"
+  )
+  range.surroundContents(newNode)
+}
+
 $('#save-changes').click(e => {
   let note = $('#note').val()
-  console.log(note, selectionText, currentId)
   let date = new Date()
   db.collection('pages').doc(currentId).update({
     annotations: firebase.firestore.FieldValue.arrayUnion({
@@ -90,32 +107,6 @@ function cleanId(document) {
   }
   return doc
 }
-
-const myQuery = db.collection('pages').orderBy('id').startAt('deq14_b1005_3226_3226_1').limit(2).get()
-
-
-/*
-db.collection('pages').doc('21WCLmFvBzAJGn7RIjSl').set({
-  selection: "Brad",
-  start: 120,
-  end: 127,
-  note: "figure it out"
-}, { merge: true })
-*/
-
-/* add new annotation
-db.collection('pages').doc('21WCLmFvBzAJGn7RIjSl').update({
-  annotations: firebase.firestore.FieldValue.arrayUnion({
-    selection: "Susan",
-    start: 144,
-    end: 156,
-    note: "you are not racist"
-  })
-})
-*/
-
-
-
 
 /*
 flintIds.forEach(id => {
