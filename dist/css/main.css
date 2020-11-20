@@ -5,3 +5,7 @@
 .title {
   padding-bottom: 10px;
 }
+
+mark {
+  background-color: yellow;
+}
