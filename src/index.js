@@ -11,7 +11,7 @@ const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
 const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 $('#docname-input').val('deq14_b1005_3226_3226_1')
 getDocument('deq14_b1005_3226_3226_1')
-let startOffset, endOffset, selectionText, flintId
+let startOffset, endOffset, selectionText, currentId
 
 $('#doc-submit').click(e => {
     let document = $('#docname-input').val()
@@ -26,7 +26,7 @@ function getDocument(document) {
             alert("No email found")
         }
         data.forEach(doc => {
-            flintId = doc.id
+            currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
                 let el = window.document.getElementById('textarea')
@@ -53,8 +53,9 @@ function getDocument(document) {
 
 $('#save-changes').click(e => {
   let note = $('#note').val()
+  console.log(note, selectionText, currentId)
   let date = new Date()
-  db.collection('pages').doc(flintId).update({
+  db.collection('pages').doc(currentId).update({
     annotations: firebase.firestore.FieldValue.arrayUnion({
         selection: selectionText,
         start: startOffset,
@@ -64,6 +65,21 @@ $('#save-changes').click(e => {
     })
 })
   $('#selectionModal').modal('hide')
+})
+
+$('#next').click(e => {
+  let id = $('#docname-input').val()
+  let nextId
+  const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
+  snapshot.then(data => {
+    data.forEach(doc => {
+      let docData = doc.data()
+      nextId = doc.id
+      currentId = nextId
+      $('#docname-input').val(docData.id)
+      $('#textarea').load(text_cloudfront + docData.id + ".txt", data => {})
+    })
+  })
 })
 
 function cleanId(document) {
