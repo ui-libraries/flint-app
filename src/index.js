@@ -21,7 +21,7 @@ $('#doc-submit').click(e => {
 })
 
 function getDocument(document) {
-  $('#docname-input').val(document)
+    $('#docname-input').val(document)
     const snapshot = db.collection('pages').where('id', '==', document).get()
     snapshot.then(data => {
         if (data.empty == true) {
@@ -31,7 +31,7 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
-              $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
+                $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
                     if (window.getSelection) {
@@ -40,7 +40,7 @@ function getDocument(document) {
                         let range = sel.getRangeAt(0)
                         startOffset = range.startOffset
                         endOffset = startOffset + range.toString().length
-                        
+
                         let modal = $('#selectionModal')
                         modal.find('#modalTitle').text(selectionText)
                         modal.find('.modal-body').html(`<p>Selection start: ${startOffset}</p><p>Selection end: ${endOffset}</p><label for="note">Add note:</label><input type="text" id="note" name="note">`)
@@ -50,59 +50,79 @@ function getDocument(document) {
                     }
                 }, false)
             }) // jQuery load
-
+            $('#annotations').empty()
+            displayAnnotationCards(flintData.annotations)
         })
     })
 }
 
 $('#save-changes').click(e => {
-  let note = $('#note').val()
-  let date = new Date()
-  db.collection('pages').doc(currentId).update({
-    annotations: firebase.firestore.FieldValue.arrayUnion({
-        selection: selectionText,
-        start: startOffset,
-        end: endOffset,
-        note: note,
-        time: date
+    let note = $('#note').val()
+
+    db.collection('pages').doc(currentId).update({
+        annotations: firebase.firestore.FieldValue.arrayUnion({
+            selection: selectionText,
+            start: startOffset,
+            end: endOffset,
+            note: note,
+            time: moment().valueOf()
+        })
     })
-})
-  $('#selectionModal').modal('hide')
+    $('#selectionModal').modal('hide')
+    getDocument($('#docname-input').val())
 })
 
 $('#next').click(e => {
-  let id = $('#docname-input').val()
-  let nextId
-  const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
-  snapshot.then(data => {
-    data.forEach(doc => {
-      let docData = doc.data()
-      nextId = doc.id
-      currentId = nextId
-      getDocument(docData.id)
+    let id = $('#docname-input').val()
+    let nextId
+    const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            nextId = doc.id
+            currentId = nextId
+            getDocument(docData.id)
+        })
     })
-  })
 })
 
 function cleanId(document) {
-  let doc
-  doc = document.substring(document.lastIndexOf("/")+1)
-  if (doc.includes('.')) {
-    doc = doc.slice(0, -4)
-  }
-  return doc
+    let doc
+    doc = document.substring(document.lastIndexOf("/") + 1)
+    if (doc.includes('.')) {
+        doc = doc.slice(0, -4)
+    }
+    return doc
 }
 
 function getUrlDoc() {
-  let page = location.href.split('/').slice(-1)[0]
-  page = page.split('?d=')
-  let file = page[1]
+    let page = location.href.split('/').slice(-1)[0]
+    page = page.split('?d=')
+    let file = page[1]
 
-  if (file) {
-    return file
-  } else {
-    return 'deq14_b1008_3230_3230_1'
-  }
+    if (file) {
+        return file
+    } else {
+        return 'deq14_b1008_3230_3230_1'
+    }
+}
+
+function displayAnnotationCards(annotations) {
+    if (annotations) {
+        annotations.forEach(item => {
+            let time = moment(time).format("DD MMM YYYY hh:mm a")
+            let html = `<div class="card" style="width: 20rem;">
+<div class="card-body">
+  <h4 class="card-title">${item.selection}</h4>
+  <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
+  <h5 class="card-text">${item.note}</h5>
+  <h6 class="card-subtitle mb-2 text-muted">created: ${time}</h6>
+</div>
+</div>`
+            $('#annotations').append(html)
+
+        })
+    }
 }
 
 /*
