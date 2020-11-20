@@ -11,6 +11,7 @@ const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
 const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 $('#docname-input').val('deq14_b1005_3226_3226_1')
 getDocument('deq14_b1005_3226_3226_1')
+let startOffset, endOffset, selectionText, flintId
 
 $('#doc-submit').click(e => {
     let document = $('#docname-input').val()
@@ -25,37 +26,22 @@ function getDocument(document) {
             alert("No email found")
         }
         data.forEach(doc => {
-            let flintId = doc.id
+            flintId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
                     if (window.getSelection) {
                         let sel = window.getSelection()
-                        let selectionText = sel.toString()
+                        selectionText = sel.toString()
                         let range = sel.getRangeAt(0)
-                        let startOffset = range.startOffset
-                        let endOffset = startOffset + range.toString().length
+                        startOffset = range.startOffset
+                        endOffset = startOffset + range.toString().length
                         let modal = $('#selectionModal')
                         modal.find('#modalTitle').text(selectionText)
-                        modal.find('.modal-body').html(`<p>Selection start: ${startOffset}</p><p>Selection end: ${endOffset}</p><label for="note">Add note:</label>
-            <input type="text" id="note" name="note">`)
+                        modal.find('.modal-body').html(`<p>Selection start: ${startOffset}</p><p>Selection end: ${endOffset}</p><label for="note">Add note:</label><input type="text" id="note" name="note">`)
                         if (selectionText.length > 0) {
                             $('#selectionModal').modal()
-                            $('.btn-primary').click(e => {
-                                let note = $('#note').val()
-                                let date = new Date()
-                                db.collection('pages').doc(flintId).update({
-                                    annotations: firebase.firestore.FieldValue.arrayUnion({
-                                        selection: selectionText,
-                                        start: startOffset,
-                                        end: endOffset,
-                                        note: note,
-                                        time: date
-                                    })
-                                })
-                                modal.modal('hide')
-                            })
                         }
                     }
                 }, false)
@@ -63,8 +49,22 @@ function getDocument(document) {
 
         })
     })
-
 }
+
+$('#save-changes').click(e => {
+  let note = $('#note').val()
+  let date = new Date()
+  db.collection('pages').doc(flintId).update({
+    annotations: firebase.firestore.FieldValue.arrayUnion({
+        selection: selectionText,
+        start: startOffset,
+        end: endOffset,
+        note: note,
+        time: date
+    })
+})
+  $('#selectionModal').modal('hide')
+})
 
 function cleanId(document) {
   let doc
