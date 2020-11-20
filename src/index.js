@@ -70,6 +70,9 @@ $('#save-changes').click(e => {
             time: moment().valueOf()
         })
     })
+    db.collection('recents').add({
+      id: $('#docname-input').val()
+    })
     $('#selectionModal').modal('hide')
     getDocument($('#docname-input').val())
 })
