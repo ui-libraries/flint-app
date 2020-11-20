@@ -21,6 +21,7 @@ $('#doc-submit').click(e => {
 })
 
 function getDocument(document) {
+  $('#docname-input').val(document)
     const snapshot = db.collection('pages').where('id', '==', document).get()
     snapshot.then(data => {
         if (data.empty == true) {
@@ -30,6 +31,7 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
+              $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
                     if (window.getSelection) {
@@ -77,8 +79,7 @@ $('#next').click(e => {
       let docData = doc.data()
       nextId = doc.id
       currentId = nextId
-      $('#docname-input').val(docData.id)
-      $('#textarea').load(text_cloudfront + docData.id + ".txt", data => {})
+      getDocument(docData.id)
     })
   })
 })
@@ -100,7 +101,7 @@ function getUrlDoc() {
   if (file) {
     return file
   } else {
-    return 'deq14_b1005_3226_3226_1'
+    return 'deq14_b1008_3230_3230_1'
   }
 }
 
