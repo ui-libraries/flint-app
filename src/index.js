@@ -12,7 +12,7 @@ const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 
 $('#docname-input').val(getUrlDoc())
 getDocument(getUrlDoc())
-let startOffset, endOffset, selectionText, currentId, previousIds = []
+let startOffset, endOffset, selectionText, currentId, previousIds = [], mainText
 
 $('#doc-submit').click(e => {
     let document = $('#docname-input').val()
@@ -31,6 +31,7 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
+              mainText = $('#textarea').html()
                 $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
@@ -111,7 +112,6 @@ $('#annotations').on('click', '.card', e => {
 })
 
 function highlightSelection(rangeNumbers) {
-    let mainText = $('#textarea').html()
     $('#textarea').empty().html(mainText)
     const element = document.getElementById('textarea')
     const textNode = element.childNodes[0]
