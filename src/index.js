@@ -50,9 +50,10 @@ function getDocument(document) {
                         }
                     }
                 }, false)
+                $('#annotations').empty()
+                displayAnnotationCards(flintData.annotations)
             }) // jQuery load
-            $('#annotations').empty()
-            displayAnnotationCards(flintData.annotations)
+            
         })
     })
 }
