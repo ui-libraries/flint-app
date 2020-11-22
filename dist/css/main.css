@@ -13,3 +13,16 @@ body {
 mark {
   background-color: yellow;
 }
+
+label {
+  margin-right: 5px;
+}
+
+.card-block {
+  padding: 20px;
+}
+
+.title {
+  font-family: 'DM Serif Display', serif;
+}
+

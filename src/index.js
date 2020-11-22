@@ -69,14 +69,12 @@ $('#save-changes').click(e => {
         })
     })
     db.collection('recents').add({
-        annotation: firebase.firestore.FieldValue.arrayUnion({
             id: $('#docname-input').val(),
             selection: selectionText,
             start: startOffset,
             end: endOffset,
             note: note,
             time: moment().valueOf()
-        })
     })
     $('#selectionModal').modal('hide')
     getDocument($('#docname-input').val())
@@ -145,13 +143,37 @@ function getUrlDoc() {
     }
 }
 
+function getRecentAnnotations(limit) {
+  let snapshot = db.collection('recents').orderBy('time', 'desc').limit(limit).get()
+  snapshot.then(data => {
+    data.forEach(doc => {
+      let anno = doc.data()
+      let time = moment(anno.time).format("DD MMM YYYY hh:mm a")
+      let html = `
+      <div class="col-md-4">
+          <div class="card">
+            <div class="card-block">
+              <h4 class="card-title">${anno.selection}</h4>
+              <h6 class="card-subtitle text-muted">start: ${anno.start} end: ${anno.end}</h6>
+              <h5 class="card-text">${anno.note}</h5>
+              <p><a href="index.html?d=${anno.id}" class="card-link">${anno.id}</a></p>
+              <p">created: ${time}</p>
+            </div>
+          </div>
+        </div>
+      `
+      $('#recent-annotations').append(html)
+    })
+  })
+}
+
 function displayAnnotationCards(annotations) {
     if (annotations) {
         annotations.forEach(item => {
             let time = moment(item.time).format("DD MMM YYYY hh:mm a")
             let html = `
             <div class="card" style="width: 20rem;">
-              <div class="card-body">
+              <div class="card-block">
                 <h4 class="card-title">${item.selection}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
                 <h5 class="card-text">${item.note}</h5>
@@ -163,6 +185,8 @@ function displayAnnotationCards(annotations) {
         })
     }
 }
+
+getRecentAnnotations(100)
 
 /*
 flintIds.forEach(id => {
