@@ -1,5 +1,4 @@
-# skeleton
-A barebones starter project for modern javascript development
+# text annotator
 
 babel + webpack + mocha + chai + documentationjs
 
