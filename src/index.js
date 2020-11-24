@@ -1,7 +1,7 @@
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import {
-    db
+    db, auth
 } from './database'
 import {
     flintIds
@@ -12,7 +12,17 @@ const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 
 $('#docname-input').val(getUrlDoc())
 getDocument(getUrlDoc())
-let startOffset, endOffset, selectionText, currentId, previousIds = [], mainText
+let startOffset, endOffset, selectionText, currentId, previousIds = [], mainText, User
+
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    User = user
+    $('#dashboard-username').html(user.email)
+  } else {
+    console.log('no user found')
+    User = undefined
+  }
+})
 
 $('#doc-submit').click(e => {
     let document = $('#docname-input').val()
@@ -110,6 +120,36 @@ $('#annotations').on('click', '.card', e => {
     let content = $(e.currentTarget).find("h6").html()
     let matches = content.match(/(\d+)/g)
     highlightSelection(matches)
+})
+
+$('#newuser-button').click(e => {
+  let email = $('#input-email').val()
+  let pw = $('#input-password').val()
+  auth.createUserWithEmailAndPassword(email, pw)
+  .then((user) => {
+    console.log(user.uid)
+  })
+  .catch((error) => {
+    let errorCode = error.code;
+    let errorMessage = error.message
+    console.log(errorCode, errorMessage)
+  })
+})
+
+$('#account-button').click(e => {
+  if(User) {
+    window.location = "dashboard.html"
+  } else {
+    $('#signinModal').modal()
+  }  
+})
+
+$('#signout-button').click(e => {
+  firebase.auth().signOut().then(function() {
+    console.log("signed out")
+  }).catch(function(error) {
+    console.log(error)
+  })
 })
 
 function highlightSelection(rangeNumbers) {

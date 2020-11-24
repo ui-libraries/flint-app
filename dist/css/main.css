@@ -26,3 +26,12 @@ label {
   font-family: 'DM Serif Display', serif;
 }
 
+#firebaseui-auth-container {
+  margin-top: 60px;
+}
+
+.firebaseui-title {
+  font-size: large;
+  font-weight: 400;
+}
+
