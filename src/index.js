@@ -92,6 +92,29 @@ $('#save-changes').click(e => {
     getDocument($('#docname-input').val())
 })
 
+$('#options-submit').click(e => {
+  if ($('#firstround-box').is(":checked")) {
+    db.collection('pages').doc(currentId).update({
+      first_round: true
+    })
+  } else {
+    db.collection('pages').doc(currentId).update({
+      first_round: false
+    })
+  }
+
+  if ($('#intercoder-box').is(":checked")) {
+    db.collection('pages').doc(currentId).update({
+      intercoder: true
+    })
+  } else {
+    db.collection('pages').doc(currentId).update({
+      intercoder: false
+    })
+  }
+  $('#optionsModal').modal('hide')
+})
+
 $('#next').click(e => {
     let id = $('#docname-input').val()
     previousIds.push(id)
@@ -145,11 +168,28 @@ $('#account-button').click(e => {
 })
 
 $('#signout-button').click(e => {
-  firebase.auth().signOut().then(function() {
+  firebase.auth().signOut().then(() => {
     console.log("signed out")
   }).catch(function(error) {
     console.log(error)
   })
+})
+
+$('#options-button').click(e => {
+  const snapshot = db.collection('pages').doc(currentId).get()
+  snapshot.then(doc => {
+    let data = doc.data()
+    $('#firstround-box').prop( "checked", true )
+    $('#intercoder-box').prop( "checked", true )
+    if (data.first_round !== true) {
+      $('#firstround-box').prop( "checked", false )
+    } 
+    if (data.intercoder !== true) {
+      $('#intercoder-box').prop( "checked", false )
+    } 
+    $('#optionsModal').modal()  
+  })
+  
 })
 
 function highlightSelection(rangeNumbers) {
@@ -228,6 +268,7 @@ function displayAnnotationCards(annotations) {
 }
 
 getRecentAnnotations(100)
+
 
 /*
 flintIds.forEach(id => {
