@@ -1,7 +1,8 @@
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import {
-    db, auth
+    db,
+    auth
 } from './database'
 import {
     flintIds
@@ -10,18 +11,21 @@ import {
 const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
 const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 
+$('#annotations').hide()
+
 $('#docname-input').val(getUrlDoc())
 getDocument(getUrlDoc())
-let startOffset, endOffset, selectionText, currentId, previousIds = [], mainText, User
+let startOffset, endOffset, selectionText, currentId, previousIds = [],
+    mainText, User
 
 auth.onAuthStateChanged(function(user) {
-  if (user) {
-    User = user
-    $('#dashboard-username').html(user.email)
-  } else {
-    console.log('no user found')
-    User = undefined
-  }
+    if (user) {
+        User = user
+        $('#dashboard-username').html(user.email)
+    } else {
+        console.log('no user found')
+        User = undefined
+    }
 })
 
 $('#doc-submit').click(e => {
@@ -41,7 +45,7 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
-              mainText = $('#textarea').html()
+                mainText = $('#textarea').html()
                 $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
@@ -63,7 +67,7 @@ function getDocument(document) {
                 $('#annotations').empty()
                 displayAnnotationCards(flintData.annotations)
             }) // jQuery load
-            
+
         })
     })
 }
@@ -81,38 +85,38 @@ $('#save-changes').click(e => {
         })
     })
     db.collection('recents').add({
-            id: $('#docname-input').val(),
-            selection: selectionText,
-            start: startOffset,
-            end: endOffset,
-            note: note,
-            time: moment().valueOf()
+        id: $('#docname-input').val(),
+        selection: selectionText,
+        start: startOffset,
+        end: endOffset,
+        note: note,
+        time: moment().valueOf()
     })
     $('#selectionModal').modal('hide')
     getDocument($('#docname-input').val())
 })
 
 $('#options-submit').click(e => {
-  if ($('#firstround-box').is(":checked")) {
-    db.collection('pages').doc(currentId).update({
-      first_round: true
-    })
-  } else {
-    db.collection('pages').doc(currentId).update({
-      first_round: false
-    })
-  }
+    if ($('#firstround-box').is(":checked")) {
+        db.collection('pages').doc(currentId).update({
+            first_round: true
+        })
+    } else {
+        db.collection('pages').doc(currentId).update({
+            first_round: false
+        })
+    }
 
-  if ($('#intercoder-box').is(":checked")) {
-    db.collection('pages').doc(currentId).update({
-      intercoder: true
-    })
-  } else {
-    db.collection('pages').doc(currentId).update({
-      intercoder: false
-    })
-  }
-  $('#optionsModal').modal('hide')
+    if ($('#intercoder-box').is(":checked")) {
+        db.collection('pages').doc(currentId).update({
+            intercoder: true
+        })
+    } else {
+        db.collection('pages').doc(currentId).update({
+            intercoder: false
+        })
+    }
+    $('#optionsModal').modal('hide')
 })
 
 $('#next').click(e => {
@@ -145,51 +149,55 @@ $('#annotations').on('click', '.card', e => {
     highlightSelection(matches)
 })
 
+$('#toggle-annotations').click(e => {
+  $('#annotations').toggle()
+})
+
 $('#newuser-button').click(e => {
-  let email = $('#input-email').val()
-  let pw = $('#input-password').val()
-  auth.createUserWithEmailAndPassword(email, pw)
-  .then((user) => {
-    console.log(user.uid)
-  })
-  .catch((error) => {
-    let errorCode = error.code;
-    let errorMessage = error.message
-    console.log(errorCode, errorMessage)
-  })
+    let email = $('#input-email').val()
+    let pw = $('#input-password').val()
+    auth.createUserWithEmailAndPassword(email, pw)
+        .then((user) => {
+            console.log(user.uid)
+        })
+        .catch((error) => {
+            let errorCode = error.code;
+            let errorMessage = error.message
+            console.log(errorCode, errorMessage)
+        })
 })
 
 $('#account-button').click(e => {
-  if(User) {
-    window.location = "dashboard.html"
-  } else {
-    $('#signinModal').modal()
-  }  
+    if (User) {
+        window.location = "dashboard.html"
+    } else {
+        $('#signinModal').modal()
+    }
 })
 
 $('#signout-button').click(e => {
-  firebase.auth().signOut().then(() => {
-    console.log("signed out")
-  }).catch(function(error) {
-    console.log(error)
-  })
+    firebase.auth().signOut().then(() => {
+        console.log("signed out")
+    }).catch(error => {
+        console.log(error)
+    })
 })
 
 $('#options-button').click(e => {
-  const snapshot = db.collection('pages').doc(currentId).get()
-  snapshot.then(doc => {
-    let data = doc.data()
-    $('#firstround-box').prop( "checked", true )
-    $('#intercoder-box').prop( "checked", true )
-    if (data.first_round !== true) {
-      $('#firstround-box').prop( "checked", false )
-    } 
-    if (data.intercoder !== true) {
-      $('#intercoder-box').prop( "checked", false )
-    } 
-    $('#optionsModal').modal()  
-  })
-  
+    const snapshot = db.collection('pages').doc(currentId).get()
+    snapshot.then(doc => {
+        let data = doc.data()
+        $('#firstround-box').prop("checked", true)
+        $('#intercoder-box').prop("checked", true)
+        if (data.first_round !== true) {
+            $('#firstround-box').prop("checked", false)
+        }
+        if (data.intercoder !== true) {
+            $('#intercoder-box').prop("checked", false)
+        }
+        $('#optionsModal').modal()
+    })
+
 })
 
 function highlightSelection(rangeNumbers) {
@@ -225,12 +233,12 @@ function getUrlDoc() {
 }
 
 function getRecentAnnotations(limit) {
-  let snapshot = db.collection('recents').orderBy('time', 'desc').limit(limit).get()
-  snapshot.then(data => {
-    data.forEach(doc => {
-      let anno = doc.data()
-      let time = moment(anno.time).format("DD MMM YYYY hh:mm a")
-      let html = `
+    let snapshot = db.collection('recents').orderBy('time', 'desc').limit(limit).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let anno = doc.data()
+            let time = moment(anno.time).format("DD MMM YYYY hh:mm a")
+            let html = `
       <div class="col-md-4">
           <div class="card">
             <div class="card-block">
@@ -243,9 +251,9 @@ function getRecentAnnotations(limit) {
           </div>
         </div>
       `
-      $('#recent-annotations').append(html)
+            $('#recent-annotations').append(html)
+        })
     })
-  })
 }
 
 function displayAnnotationCards(annotations) {
