@@ -12,26 +12,24 @@ const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
 const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
 
 $('#annotations').hide()
+$('#options-button').hide()
+$('#toggle-annotations').hide()
 
 $('#docname-input').val(getUrlDoc())
 getDocument(getUrlDoc())
 let startOffset, endOffset, selectionText, currentId, previousIds = [],
     mainText, User
 
-auth.onAuthStateChanged(function(user) {
+auth.onAuthStateChanged(user => {
     if (user) {
         User = user
         $('#dashboard-username').html(user.email)
+        $('#options-button').show()
+        $('#toggle-annotations').show()
     } else {
         console.log('no user found')
         User = undefined
     }
-})
-
-$('#doc-submit').click(e => {
-    let document = $('#docname-input').val()
-    document = cleanId(document)
-    getDocument(document)
 })
 
 function getDocument(document) {
@@ -71,134 +69,6 @@ function getDocument(document) {
         })
     })
 }
-
-$('#save-changes').click(e => {
-    let note = $('#note').val()
-
-    db.collection('pages').doc(currentId).update({
-        annotations: firebase.firestore.FieldValue.arrayUnion({
-            selection: selectionText,
-            start: startOffset,
-            end: endOffset,
-            note: note,
-            time: moment().valueOf()
-        })
-    })
-    db.collection('recents').add({
-        id: $('#docname-input').val(),
-        selection: selectionText,
-        start: startOffset,
-        end: endOffset,
-        note: note,
-        time: moment().valueOf()
-    })
-    $('#selectionModal').modal('hide')
-    getDocument($('#docname-input').val())
-})
-
-$('#options-submit').click(e => {
-    if ($('#firstround-box').is(":checked")) {
-        db.collection('pages').doc(currentId).update({
-            first_round: true
-        })
-    } else {
-        db.collection('pages').doc(currentId).update({
-            first_round: false
-        })
-    }
-
-    if ($('#intercoder-box').is(":checked")) {
-        db.collection('pages').doc(currentId).update({
-            intercoder: true
-        })
-    } else {
-        db.collection('pages').doc(currentId).update({
-            intercoder: false
-        })
-    }
-    $('#optionsModal').modal('hide')
-})
-
-$('#next').click(e => {
-    let id = $('#docname-input').val()
-    previousIds.push(id)
-    let nextId
-    const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
-    snapshot.then(data => {
-        data.forEach(doc => {
-            let docData = doc.data()
-            nextId = doc.id
-            currentId = nextId
-            getDocument(docData.id)
-        })
-    })
-})
-
-$('#prev').click(e => {
-    let prevId = previousIds[previousIds.length - 1]
-    $('#docname-input').val(prevId)
-    previousIds.pop()
-    getDocument(prevId)
-})
-
-$('#annotations').on('click', '.card', e => {
-    $("#annotations").children().css('box-shadow', '0px 0px 0px #888')
-    $(e.currentTarget).css('box-shadow', '10px 10px 5px #888')
-    let content = $(e.currentTarget).find("h6").html()
-    let matches = content.match(/(\d+)/g)
-    highlightSelection(matches)
-})
-
-$('#toggle-annotations').click(e => {
-  $('#annotations').toggle()
-})
-
-$('#newuser-button').click(e => {
-    let email = $('#input-email').val()
-    let pw = $('#input-password').val()
-    auth.createUserWithEmailAndPassword(email, pw)
-        .then((user) => {
-            console.log(user.uid)
-        })
-        .catch((error) => {
-            let errorCode = error.code;
-            let errorMessage = error.message
-            console.log(errorCode, errorMessage)
-        })
-})
-
-$('#account-button').click(e => {
-    if (User) {
-        window.location = "dashboard.html"
-    } else {
-        $('#signinModal').modal()
-    }
-})
-
-$('#signout-button').click(e => {
-    firebase.auth().signOut().then(() => {
-        console.log("signed out")
-    }).catch(error => {
-        console.log(error)
-    })
-})
-
-$('#options-button').click(e => {
-    const snapshot = db.collection('pages').doc(currentId).get()
-    snapshot.then(doc => {
-        let data = doc.data()
-        $('#firstround-box').prop("checked", true)
-        $('#intercoder-box').prop("checked", true)
-        if (data.first_round !== true) {
-            $('#firstround-box').prop("checked", false)
-        }
-        if (data.intercoder !== true) {
-            $('#intercoder-box').prop("checked", false)
-        }
-        $('#optionsModal').modal()
-    })
-
-})
 
 function highlightSelection(rangeNumbers) {
     $('#textarea').empty().html(mainText)
@@ -274,6 +144,142 @@ function displayAnnotationCards(annotations) {
         })
     }
 }
+
+$('#doc-submit').click(e => {
+  let document = $('#docname-input').val()
+  document = cleanId(document)
+  getDocument(document)
+})
+
+$('#save-changes').click(e => {
+  let note = $('#note').val()
+
+  db.collection('pages').doc(currentId).update({
+      annotations: firebase.firestore.FieldValue.arrayUnion({
+          selection: selectionText,
+          start: startOffset,
+          end: endOffset,
+          note: note,
+          user: User.email,
+          time: moment().valueOf()
+      })
+  })
+  db.collection('recents').add({
+      id: $('#docname-input').val(),
+      selection: selectionText,
+      start: startOffset,
+      end: endOffset,
+      note: note,
+      user: User.email,
+      time: moment().valueOf()
+  })
+  $('#selectionModal').modal('hide')
+  getDocument($('#docname-input').val())
+})
+
+$('#options-submit').click(e => {
+  if ($('#firstround-box').is(":checked")) {
+      db.collection('pages').doc(currentId).update({
+          first_round: true
+      })
+  } else {
+      db.collection('pages').doc(currentId).update({
+          first_round: false
+      })
+  }
+
+  if ($('#intercoder-box').is(":checked")) {
+      db.collection('pages').doc(currentId).update({
+          intercoder: true
+      })
+  } else {
+      db.collection('pages').doc(currentId).update({
+          intercoder: false
+      })
+  }
+  $('#optionsModal').modal('hide')
+})
+
+$('#next').click(e => {
+  let id = $('#docname-input').val()
+  previousIds.push(id)
+  let nextId
+  const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
+  snapshot.then(data => {
+      data.forEach(doc => {
+          let docData = doc.data()
+          nextId = doc.id
+          currentId = nextId
+          getDocument(docData.id)
+      })
+  })
+})
+
+$('#prev').click(e => {
+  let prevId = previousIds[previousIds.length - 1]
+  $('#docname-input').val(prevId)
+  previousIds.pop()
+  getDocument(prevId)
+})
+
+$('#annotations').on('click', '.card', e => {
+  $("#annotations").children().css('box-shadow', '0px 0px 0px #888')
+  $(e.currentTarget).css('box-shadow', '10px 10px 5px #888')
+  let content = $(e.currentTarget).find("h6").html()
+  let matches = content.match(/(\d+)/g)
+  highlightSelection(matches)
+})
+
+$('#toggle-annotations').click(e => {
+  $('#annotations').toggle()
+})
+
+$('#newuser-button').click(e => {
+    let email = $('#input-email').val()
+    let pw = $('#input-password').val()
+    auth.createUserWithEmailAndPassword(email, pw)
+        .then((user) => {
+            console.log(user.uid)
+        })
+        .catch((error) => {
+            let errorCode = error.code;
+            let errorMessage = error.message
+            console.log(errorCode, errorMessage)
+        })
+})
+
+$('#account-button').click(e => {
+    if (User) {
+        window.location = "dashboard.html"
+    } else {
+        $('#signinModal').modal()
+    }
+})
+
+$('#signout-button').click(e => {
+    firebase.auth().signOut().then(() => {
+        console.log("signed out")
+    }).catch(error => {
+        console.log(error)
+    })
+})
+
+$('#options-button').click(e => {
+    const snapshot = db.collection('pages').doc(currentId).get()
+    snapshot.then(doc => {
+        let data = doc.data()
+        $('#firstround-box').prop("checked", true)
+        $('#intercoder-box').prop("checked", true)
+        if (data.first_round !== true) {
+            $('#firstround-box').prop("checked", false)
+        }
+        if (data.intercoder !== true) {
+            $('#intercoder-box').prop("checked", false)
+        }
+        $('#optionsModal').modal()
+    })
+
+})
 
 getRecentAnnotations(100)
 
