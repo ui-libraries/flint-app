@@ -29,6 +29,7 @@ auth.onAuthStateChanged(user => {
     } else {
         console.log('no user found')
         User = undefined
+        alert('logged out')
     }
 })
 
@@ -103,7 +104,6 @@ function getUrlDoc() {
 }
 
 function getRecentAnnotations(limit) {
-    console.log("we here baby")
     let snapshot = db.collection('recents').orderBy('time', 'desc').limit(limit).get()
     snapshot.then(data => {
         data.forEach(doc => {
