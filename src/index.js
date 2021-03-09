@@ -117,7 +117,7 @@ function getRecentAnnotations(limit) {
               <h6 class="card-subtitle text-muted">start: ${anno.start} end: ${anno.end}</h6>
               <h5 class="card-text">${anno.note}</h5>
               <p><a href="index.html?d=${anno.id}" class="card-link">${anno.id}</a></p>
-              <p">created: ${time}</p>
+              <p">created: <strong>${time}</strong> by ${anno.user}</p>
             </div>
           </div>
         </div>
@@ -137,7 +137,7 @@ function displayAnnotationCards(annotations) {
                 <h4 class="card-title">${item.selection}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
                 <h5 class="card-text">${item.note}</h5>
-                <p">created: ${time}</p>
+                <p">created: <strong>${time}</strong> by ${item.user}</p>
               </div>
             </div>
             `
