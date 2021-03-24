@@ -35,3 +35,22 @@ label {
   font-weight: 400;
 }
 
+form.is-readonly .btn-save {
+  display: none;
+}
+form.is-readonly input[disabled], form.is-readonly textarea[disabled] {
+  cursor: text;
+  background-color: #fff;
+  border-color: transparent;
+  outline-color: transparent;
+  box-shadow: none;
+}
+form.is-editing .btn-edit {
+  display: none;
+}
+
+.card-text {
+  margin-top: 5px;
+  border: 0px solid rgb(0 0 0 / 10%);
+}
+

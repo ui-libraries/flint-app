@@ -115,19 +115,33 @@ function getRecentAnnotations(limit) {
             <div class="card-block">
               <h4 class="card-title">${anno.selection}</h4>
               <h6 class="card-subtitle text-muted">start: ${anno.start} end: ${anno.end}</h6>
-              <h5 class="card-text">${anno.note}</h5>
+              <textarea required readonly class="card-text">${anno.note}</textarea>
               <p><a href="index.html?d=${anno.id}" class="card-link">${anno.id}</a></p>
-              <p">created: <strong>${time}</strong> by ${anno.user}</p>
+              <p>created: ${time}</p>
+              <i class="fa fa-edit"></i>
+              <i class="fa fa-trash"></i>
             </div>
           </div>
         </div>
       `
             $('#recent-annotations').append(html)
         })
-    })
+        $('.fa-edit').click(e => {
+            let el = $(e.currentTarget).parent().find("textarea")
+            let re = $(el).prop('readonly')
+            $(el).prop('readonly', !re)
+            $(el).css("border", "1px solid rgb(0 0 0 / 10%)")
+            $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
+            $('.fa-save').click(evt => {
+                console.log("saving to database...")
+                $(el).css("border", "0px")
+            })
+        })        
+    })    
 }
 
 function displayAnnotationCards(annotations) {
+    console.log(annotations)
     if (annotations) {
         annotations.forEach(item => {
             let time = moment(item.time).format("DD MMM YYYY hh:mm a")
@@ -136,15 +150,30 @@ function displayAnnotationCards(annotations) {
               <div class="card-block">
                 <h4 class="card-title">${item.selection}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
-                <h5 class="card-text">${item.note}</h5>
-                <p">created: <strong>${time}</strong> by ${item.user}</p>
+                <textarea required readonly class="card-text">${item.note}</textarea>
+                <p>created: ${time}</p>
+                <i class="fa fa-edit"></i>
+                <i class="fa fa-trash"></i>
               </div>
             </div>
             `
             $('#annotations').append(html)
         })
     }
+    $('.fa-edit').click(e => {
+        let el = $(e.currentTarget).parent().find("textarea")
+        let re = $(el).prop('readonly')
+        $(el).prop('readonly', !re)
+        $(el).css("border", "1px solid rgb(0 0 0 / 10%)")
+        $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
+        $('.fa-save').click(evt => {
+            console.log("saving to database...")
+            $(el).css("border", "0px")
+        })
+    })
 }
+
+
 
 $('#doc-submit').click(e => {
   let document = $('#docname-input').val()
