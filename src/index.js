@@ -42,6 +42,7 @@ function getDocument(document) {
         }
         data.forEach(doc => {
             currentId = doc.id
+            console.log(currentId)
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
                 mainText = $('#textarea').html()
@@ -141,7 +142,7 @@ function getRecentAnnotations(limit) {
 }
 
 function displayAnnotationCards(annotations) {
-    console.log(annotations)
+    let annoItem
     if (annotations) {
         annotations.forEach(item => {
             let time = moment(item.time).format("DD MMM YYYY hh:mm a")
@@ -151,7 +152,7 @@ function displayAnnotationCards(annotations) {
                 <h4 class="card-title">${item.selection}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
                 <textarea required readonly class="card-text">${item.note}</textarea>
-                <p>created: ${time}</p>
+                <p class="card-time">created: ${time}</p>
                 <i class="fa fa-edit"></i>
                 <i class="fa fa-trash"></i>
               </div>
@@ -167,8 +168,57 @@ function displayAnnotationCards(annotations) {
         $(el).css("border", "1px solid rgb(0 0 0 / 10%)")
         $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
         $('.fa-save').click(evt => {
-            console.log("saving to database...")
+            let doc = $('#docname-input').val()
+            let time = $(e.currentTarget).parent().find(".card-time").html()
+            let annoItem = {
+                selection: $(e.currentTarget).parent().find(".card-title").html(),
+                note: $(e.currentTarget).parent().find(".card-text").html()
+            }
+            let newNote = $(e.currentTarget).parent().find("textarea").val()
+            editAnnotationCard(annoItem, doc, newNote)
             $(el).css("border", "0px")
+        })
+        $('.fa-trash').click(e => {
+            let doc = $('#docname-input').val()
+            let annoItem = {
+                selection: $(e.currentTarget).parent().find(".card-title").html(),
+                note: $(e.currentTarget).parent().find(".card-text").html()
+            }
+            deleteAnnotation(annoItem, doc)
+        })
+    })
+}
+
+function editAnnotationCard(item, docId, newNote) {
+    const snapshot = db.collection('pages').where('id', '==', docId).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            let annotations = docData.annotations
+            let annoItem
+            for (let i = 0; i < annotations.length; i++) {
+                if (annotations[i].selection == item.selection && annotations[i].note == item.note) {
+                    annoItem = annotations[i]
+                    annoItem.note = newNote
+                    annotations[i] = annoItem
+                }
+            }
+            db.collection('pages').doc(currentId).set({annotations: annotations, "id": docId})
+        })
+    })
+}
+
+function deleteAnnotation(item, docId) {
+    const snapshot = db.collection('pages').where('id', '==', docId).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            let annotation = docData.annotations
+            for (let i = 0; i < annotations.length; i++) {
+                if (annotations[i].selection == item.selection && annotations[i].note == item.note) {
+                    console.log("deleting this annotation", annotations[i].selection)
+                }
+            }
         })
     })
 }
@@ -314,6 +364,8 @@ $('#options-button').click(e => {
 if ($('#recent-annotations').length > 0) {
     getRecentAnnotations(100)
 }
+
+
 
 /*
 flintIds.forEach(id => {
