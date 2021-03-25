@@ -99,7 +99,7 @@ function getUrlDoc() {
     if (file) {
         return file
     } else {
-        return 'deq14_b1198_3592_3605_14'
+        return 'dhhs03_b420_1558_1558_1'
     }
 }
 
@@ -117,9 +117,7 @@ function getRecentAnnotations(limit) {
               <h6 class="card-subtitle text-muted">start: ${anno.start} end: ${anno.end}</h6>
               <textarea required readonly class="card-text">${anno.note}</textarea>
               <p><a href="index.html?d=${anno.id}" class="card-link">${anno.id}</a></p>
-              <p>created: ${time}</p>
-              <i class="fa fa-edit"></i>
-              <i class="fa fa-trash"></i>
+              <p>created: <strong>${time}</strong> by ${anno.user}</p>
             </div>
           </div>
         </div>
@@ -151,7 +149,7 @@ function displayAnnotationCards(annotations) {
                 <h4 class="card-title">${item.selection}</h4>
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
                 <textarea required readonly class="card-text">${item.note}</textarea>
-                <p class="card-time">created: ${time}</p>
+                <p>created: <strong>${time}</strong> by ${item.user}</p>
                 <i class="fa fa-edit"></i>&nbsp;&nbsp;&nbsp;&nbsp;
                 <i class="fa fa-trash"></i>&nbsp;&nbsp;&nbsp;&nbsp;
               </div>
@@ -175,6 +173,7 @@ function displayAnnotationCards(annotations) {
             }
             let newNote = $(e.currentTarget).parent().find("textarea").val()
             editAnnotationCard(annoItem, doc, newNote)
+            editRecentAnnotation(annoItem, doc, newNote)
             $(el).css("border", "0px")
         })
     })
@@ -185,6 +184,7 @@ function displayAnnotationCards(annotations) {
             note: $(e.currentTarget).parent().find(".card-text").html()
         }
         deleteAnnotation(annoItem, doc)
+        deleteRecentAnnotation(annoItem, doc)
         $(e.currentTarget).parent().parent().remove()
 
     })
@@ -209,6 +209,18 @@ function editAnnotationCard(item, docId, newNote) {
     })
 }
 
+function editRecentAnnotation(item, docId, newNote) {
+    const snapshot = db.collection('recents').where('id', '==', docId).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            if (docData.selection == item.selection && docData.note == item.note) {
+                db.collection('recents').doc(doc.id).update({note: newNote})
+            }
+        })
+    })
+}
+
 function deleteAnnotation(item, docId) {
     const snapshot = db.collection('pages').where('id', '==', docId).get()
     snapshot.then(data => {
@@ -222,6 +234,18 @@ function deleteAnnotation(item, docId) {
                 }
             }
             db.collection('pages').doc(currentId).set({annotations: annotations, "id": docId})
+        })
+    })
+}
+
+function deleteRecentAnnotation(item, docId) {
+    const snapshot = db.collection('recents').where('id', '==', docId).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            if (docData.selection == item.selection && docData.note == item.note) {
+                db.collection('recents').doc(doc.id).delete()
+            }
         })
     })
 }
