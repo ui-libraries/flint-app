@@ -42,7 +42,6 @@ function getDocument(document) {
         }
         data.forEach(doc => {
             currentId = doc.id
-            console.log(currentId)
             let flintData = doc.data()
             $('#textarea').load(text_cloudfront + document + ".txt", data => {
                 mainText = $('#textarea').html()
@@ -153,8 +152,8 @@ function displayAnnotationCards(annotations) {
                 <h6 class="card-subtitle mb-2 text-muted">start: ${item.start} end: ${item.end}</h6>
                 <textarea required readonly class="card-text">${item.note}</textarea>
                 <p class="card-time">created: ${time}</p>
-                <i class="fa fa-edit"></i>
-                <i class="fa fa-trash"></i>
+                <i class="fa fa-edit"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <i class="fa fa-trash"></i>&nbsp;&nbsp;&nbsp;&nbsp;
               </div>
             </div>
             `
@@ -178,14 +177,16 @@ function displayAnnotationCards(annotations) {
             editAnnotationCard(annoItem, doc, newNote)
             $(el).css("border", "0px")
         })
-        $('.fa-trash').click(e => {
-            let doc = $('#docname-input').val()
-            let annoItem = {
-                selection: $(e.currentTarget).parent().find(".card-title").html(),
-                note: $(e.currentTarget).parent().find(".card-text").html()
-            }
-            deleteAnnotation(annoItem, doc)
-        })
+    })
+    $('.fa-trash').click(e => {
+        let doc = $('#docname-input').val()
+        let annoItem = {
+            selection: $(e.currentTarget).parent().find(".card-title").html(),
+            note: $(e.currentTarget).parent().find(".card-text").html()
+        }
+        deleteAnnotation(annoItem, doc)
+        $(e.currentTarget).parent().parent().remove()
+
     })
 }
 
@@ -213,12 +214,14 @@ function deleteAnnotation(item, docId) {
     snapshot.then(data => {
         data.forEach(doc => {
             let docData = doc.data()
-            let annotation = docData.annotations
+            let annotations = docData.annotations
             for (let i = 0; i < annotations.length; i++) {
+                console.log(annotations[i])
                 if (annotations[i].selection == item.selection && annotations[i].note == item.note) {
-                    console.log("deleting this annotation", annotations[i].selection)
+                    annotations.splice(i, 1)
                 }
             }
+            db.collection('pages').doc(currentId).set({annotations: annotations, "id": docId})
         })
     })
 }
