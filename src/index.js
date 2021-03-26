@@ -163,7 +163,11 @@ function displayAnnotationCards(annotations) {
         let re = $(el).prop('readonly')
         $(el).prop('readonly', !re)
         $(el).css("border", "1px solid rgb(0 0 0 / 10%)")
-        $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
+
+        if (!$(e.currentTarget).parent().has('.fa-save').length) {
+            $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
+        }
+        
         $('.fa-save').click(evt => {
             let doc = $('#docname-input').val()
             let time = $(e.currentTarget).parent().find(".card-time").html()
