@@ -134,8 +134,8 @@ function getRecentAnnotations(limit) {
                 console.log("saving to database...")
                 $(el).css("border", "0px")
             })
-        })        
-    })    
+        })
+    })
 }
 
 function displayAnnotationCards(annotations) {
@@ -167,7 +167,7 @@ function displayAnnotationCards(annotations) {
         if (!$(e.currentTarget).parent().has('.fa-save').length) {
             $(e.currentTarget).parent().append('<i class="fa fa-save"></i>')
         }
-        
+
         $('.fa-save').click(evt => {
             let doc = $('#docname-input').val()
             let time = $(e.currentTarget).parent().find(".card-time").html()
@@ -208,7 +208,10 @@ function editAnnotationCard(item, docId, newNote) {
                     annotations[i] = annoItem
                 }
             }
-            db.collection('pages').doc(currentId).set({annotations: annotations, "id": docId})
+            db.collection('pages').doc(currentId).set({
+                annotations: annotations,
+                "id": docId
+            })
         })
     })
 }
@@ -219,7 +222,9 @@ function editRecentAnnotation(item, docId, newNote) {
         data.forEach(doc => {
             let docData = doc.data()
             if (docData.selection == item.selection && docData.note == item.note) {
-                db.collection('recents').doc(doc.id).update({note: newNote})
+                db.collection('recents').doc(doc.id).update({
+                    note: newNote
+                })
             }
         })
     })
@@ -237,7 +242,10 @@ function deleteAnnotation(item, docId) {
                     annotations.splice(i, 1)
                 }
             }
-            db.collection('pages').doc(currentId).set({annotations: annotations, "id": docId})
+            db.collection('pages').doc(currentId).set({
+                annotations: annotations,
+                "id": docId
+            })
         })
     })
 }
@@ -257,92 +265,92 @@ function deleteRecentAnnotation(item, docId) {
 
 
 $('#doc-submit').click(e => {
-  let document = $('#docname-input').val()
-  document = cleanId(document)
-  getDocument(document)
+    let document = $('#docname-input').val()
+    document = cleanId(document)
+    getDocument(document)
 })
 
 $('#save-changes').click(e => {
-  let note = $('#note').val()
+    let note = $('#note').val()
 
-  db.collection('pages').doc(currentId).update({
-      annotations: firebase.firestore.FieldValue.arrayUnion({
-          selection: selectionText,
-          start: startOffset,
-          end: endOffset,
-          note: note,
-          user: User.email,
-          time: moment().valueOf()
-      })
-  })
-  db.collection('recents').add({
-      id: $('#docname-input').val(),
-      selection: selectionText,
-      start: startOffset,
-      end: endOffset,
-      note: note,
-      user: User.email,
-      time: moment().valueOf()
-  })
-  $('#selectionModal').modal('hide')
-  getDocument($('#docname-input').val())
+    db.collection('pages').doc(currentId).update({
+        annotations: firebase.firestore.FieldValue.arrayUnion({
+            selection: selectionText,
+            start: startOffset,
+            end: endOffset,
+            note: note,
+            user: User.email,
+            time: moment().valueOf()
+        })
+    })
+    db.collection('recents').add({
+        id: $('#docname-input').val(),
+        selection: selectionText,
+        start: startOffset,
+        end: endOffset,
+        note: note,
+        user: User.email,
+        time: moment().valueOf()
+    })
+    $('#selectionModal').modal('hide')
+    getDocument($('#docname-input').val())
 })
 
 $('#options-submit').click(e => {
-  if ($('#firstround-box').is(":checked")) {
-      db.collection('pages').doc(currentId).update({
-          first_round: true
-      })
-  } else {
-      db.collection('pages').doc(currentId).update({
-          first_round: false
-      })
-  }
+    if ($('#firstround-box').is(":checked")) {
+        db.collection('pages').doc(currentId).update({
+            first_round: true
+        })
+    } else {
+        db.collection('pages').doc(currentId).update({
+            first_round: false
+        })
+    }
 
-  if ($('#intercoder-box').is(":checked")) {
-      db.collection('pages').doc(currentId).update({
-          intercoder: true
-      })
-  } else {
-      db.collection('pages').doc(currentId).update({
-          intercoder: false
-      })
-  }
-  $('#optionsModal').modal('hide')
+    if ($('#intercoder-box').is(":checked")) {
+        db.collection('pages').doc(currentId).update({
+            intercoder: true
+        })
+    } else {
+        db.collection('pages').doc(currentId).update({
+            intercoder: false
+        })
+    }
+    $('#optionsModal').modal('hide')
 })
 
 $('#next').click(e => {
-  let id = $('#docname-input').val()
-  previousIds.push(id)
-  let nextId
-  const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
-  snapshot.then(data => {
-      data.forEach(doc => {
-          let docData = doc.data()
-          nextId = doc.id
-          currentId = nextId
-          getDocument(docData.id)
-      })
-  })
+    let id = $('#docname-input').val()
+    previousIds.push(id)
+    let nextId
+    const snapshot = db.collection('pages').orderBy('id').startAt(id).limit(2).get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            nextId = doc.id
+            currentId = nextId
+            getDocument(docData.id)
+        })
+    })
 })
 
 $('#prev').click(e => {
-  let prevId = previousIds[previousIds.length - 1]
-  $('#docname-input').val(prevId)
-  previousIds.pop()
-  getDocument(prevId)
+    let prevId = previousIds[previousIds.length - 1]
+    $('#docname-input').val(prevId)
+    previousIds.pop()
+    getDocument(prevId)
 })
 
 $('#annotations').on('click', '.card', e => {
-  $("#annotations").children().css('box-shadow', '0px 0px 0px #888')
-  $(e.currentTarget).css('box-shadow', '10px 10px 5px #888')
-  let content = $(e.currentTarget).find("h6").html()
-  let matches = content.match(/(\d+)/g)
-  highlightSelection(matches)
+    $("#annotations").children().css('box-shadow', '0px 0px 0px #888')
+    $(e.currentTarget).css('box-shadow', '10px 10px 5px #888')
+    let content = $(e.currentTarget).find("h6").html()
+    let matches = content.match(/(\d+)/g)
+    highlightSelection(matches)
 })
 
 $('#toggle-annotations').click(e => {
-  $('#annotations').toggle()
+    $('#annotations').toggle()
 })
 
 $('#newuser-button').click(e => {
@@ -353,7 +361,7 @@ $('#newuser-button').click(e => {
             console.log(user.uid)
         })
         .catch((error) => {
-            let errorCode = error.code;
+            let errorCode = error.code
             let errorMessage = error.message
             console.log(errorCode, errorMessage)
         })
@@ -390,6 +398,34 @@ $('#options-button').click(e => {
         $('#optionsModal').modal()
     })
 
+})
+
+$('#download-button').click(e => {
+    let annoList = []
+    const snapshot = db.collection('pages').where('annotations', '!=', "").get()
+    snapshot.then(data => {
+        data.forEach(doc => {
+            let docData = doc.data()
+            annoList.push(docData)
+        })
+        let output = JSON.stringify(annoList, null, 4)
+        let json = [output];
+        var blob1 = new Blob(json, { type: "text/plain;charset=utf-8" });
+ 
+        //Check the Browser.
+        var isIE = false || !!document.documentMode;
+        if (isIE) {
+            window.navigator.msSaveBlob(blob1, "flint-annotations.json");
+        } else {
+            var url = window.URL || window.webkitURL;
+            let link = url.createObjectURL(blob1)
+            var a = $("<a />")
+            a.attr("download", "flint-annotations.json")
+            a.attr("href", link)
+            $("body").append(a)
+            a[0].click()
+        }
+    })
 })
 
 if ($('#recent-annotations').length > 0) {

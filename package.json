@@ -45,6 +45,7 @@
   "dependencies": {
     "firebase": "^8.0.2",
     "firebase-admin": "^9.4.1",
-    "firebaseui": "^4.7.1"
+    "firebaseui": "^4.7.1",
+    "fs-web": "^1.0.1"
   }
 }
