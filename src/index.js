@@ -43,8 +43,10 @@ function getDocument(document) {
         data.forEach(doc => {
             currentId = doc.id
             let flintData = doc.data()
-            $('#textarea').load(text_cloudfront + document + ".txt", data => {
-                mainText = $('#textarea').html()
+            $.get(text_cloudfront + document + ".txt", (text_file) => {
+                console.log(text_file)
+                let texts_file = text_file.replace(/[<>]/g, '')
+                $('#textarea').html(texts_file)
                 $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
                 let el = window.document.getElementById('textarea')
                 el.addEventListener('mouseup', () => {
@@ -63,10 +65,8 @@ function getDocument(document) {
                         }
                     }
                 }, false)
-                $('#annotations').empty()
-                displayAnnotationCards(flintData.annotations)
-            }) // jQuery load
-
+            })
+            
         })
     })
 }
