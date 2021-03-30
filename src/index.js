@@ -44,7 +44,6 @@ function getDocument(document) {
             currentId = doc.id
             let flintData = doc.data()
             $.get(text_cloudfront + document + ".txt", (text_file) => {
-                console.log(text_file)
                 let texts_file = text_file.replace(/[<>]/g, '')
                 $('#textarea').html(texts_file)
                 $("#pdf").attr("href", pdf_cloudfront + document + ".pdf")
@@ -65,8 +64,9 @@ function getDocument(document) {
                         }
                     }
                 }, false)
-            })
-            
+                $('#annotations').empty()
+                displayAnnotationCards(flintData.annotations)
+            })            
         })
     })
 }
