@@ -8,8 +8,8 @@ import {
     flintIds
 } from './flint-ids-test'
 
-const text_cloudfront = 'http://d1us66xhqwx73c.cloudfront.net/'
-const pdf_cloudfront = 'http://d3o55pxnb4jrui.cloudfront.net/'
+const text_cloudfront = 'https://d1us66xhqwx73c.cloudfront.net/'
+const pdf_cloudfront = 'https://d3o55pxnb4jrui.cloudfront.net/'
 
 $('#annotations').hide()
 $('#options-button').hide()
